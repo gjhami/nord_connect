@@ -7,6 +7,6 @@ apt-get install unzip --quiet --assume-yes
 
 # Trust nordvpn certificate and install configs
 cd /etc/openvpn
-wget https://downloads.nordcdn.com/configsarchives/servers/ovpn.zip
+wget https://downloads.nordcdn.com/configs/archives/servers/ovpn.zip
 unzip ovpn.zip
 rm ovpn.zip
