@@ -4,6 +4,7 @@
 apt-get install openvpn --quiet --assume-yes
 apt-get install ca-certificates --quiet --assume-yes
 apt-get install unzip --quiet --assume-yes
+apt-get install speedtest-cli --quiet --assume-yes
 
 # Trust nordvpn certificate and install configs
 cd /etc/openvpn
