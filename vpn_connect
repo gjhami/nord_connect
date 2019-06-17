@@ -13,7 +13,7 @@ PROTOCOL="${1}"
 COUNTRY="${2}"
 
 # Set location for possible servers
-SERVER_BASE="/home/you/code/ratings-boost/nord_connect/nord_${PROTOCOL}/"
+SERVER_BASE="/home/you/code/boost/nord_connect/nord_${PROTOCOL}/"
 
 # Read in servers with the abbreviation <country abbreviation>
 SERVER_ARRAY=($(ls "${SERVER_BASE}" | grep "${COUNTRY}"))

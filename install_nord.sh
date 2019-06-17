@@ -18,13 +18,13 @@ update-server-files() {
   PROTOCOL="${1}"
   SERVER_BASE="/etc/openvpn/ovpn_${PROTOCOL}"
   SERVER_LIST=($(ls "${SERVER_BASE}"))
-  DEST_DIRECTORY="/home/you/code/ratings-boost/nord_connect/nord_${PROTOCOL}"
+  DEST_DIRECTORY="/home/you/code/boost/nord_connect/nord_${PROTOCOL}"
 
   rm -rf "${DEST_DIRECTORY}"
   mkdir -p "${DEST_DIRECTORY}"
   for SERVER_FILE in "${SERVER_LIST[@]}"; do
   	cat "${SERVER_BASE}/${SERVER_FILE}" | \
-        /home/you/code/ratings-boost/nord_connect/append-credentials.gawk > \
+        /home/you/code/boost/nord_connect/append-credentials.gawk > \
         "${DEST_DIRECTORY}/${SERVER_FILE}"
   done
 }
