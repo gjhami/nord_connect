@@ -4,6 +4,8 @@ set -o errexit
 #set -o nounset
 #set -o pipefail
 
+pkill openvpn # Kill any existing openvpn sessions
+
 # Usage: ./tcp_connect <Connection Protocol> <Country Abbreviation>
 #   <Connection Protocol>: tcp or udp
 #   <Country Abbreviation>: Abbreviation for the country you want to vpn in to
