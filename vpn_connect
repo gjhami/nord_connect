@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -o errexit
+#set -o xtrace
+#set -o nounset
+#set -o pipefail
+
+pkill openvpn # Kill any existing openvpn sessions
+
+# Usage: ./tcp_connect <Connection Protocol> <Country Abbreviation>
+#   <Connection Protocol>: tcp or udp
+#   <Country Abbreviation>: Abbreviation for the country you want to vpn in to
+PROTOCOL="${1}"
+COUNTRY="${2}"
+
+# Set location for possible servers
+SERVER_BASE="/home/you/code/boost/nord_connect/nord_${PROTOCOL}/"
+
+# Read in servers with the abbreviation <country abbreviation>
+SERVER_ARRAY=($(ls "${SERVER_BASE}" | grep "${COUNTRY}"))
+
+
+# Function to compute average speed
+get-speed() {
+  # Set paramaters for selecting a selecting the fastest server
+  SERVER="${1}" # Name of server to test
+  NUM_TESTS="${2}"  # Number of speed tests to average for each server
+  AVG_SPEED=0 # Variable for storing the average speed of each server
+
+  openvpn "${SERVER}" & >> /dev/null # Launch VPN connection in the background
+
+  # Perform the selected number of speed tests and add the results
+  for (( i=0; i<"${NUM_TESTS}"; i++)); do
+    SPEED=$( speedtest-cli | \
+            gawk '{if ($1 == "Download:") print substr($2, 1, length($2)-3)}' )
+    AVG_SPEED=$(($AVG_SPEED+$SPEED))
+  done
+
+  # Close the vpn connection
+  pkill openvpn
+
+  AVG_SPEED=$(( "${AVG_SPEED}" / 3 )) # Compute speed test results average
+  echo "SPEED:	${AVG_SPEED}"
+}
+
+
+get-random-server() {
+  SERVER_ARRAY="${1}"
+
+  # Generate a random number
+  RANDOM_NUM="$(od -vAn -N3 -tu4 < /dev/urandom)"
+
+  # Get the total number of servers in the selected country
+  TOTAL_SERVERS="${#SERVER_ARRAY[@]}"
+
+  # Use modulo arithmatic to get a random number within the number of servers
+  RANDOM_SERVER_NUM=$(("${RANDOM_NUM}"%"${TOTAL_SERVERS}"))
+
+  # Get the name of the server associated with the random number
+  RANDOM_SERVER="${SERVER_BASE}${SERVER_ARRAY[${RANDOM_SERVER_NUM}]}"
+
+  echo "${RANDOM_SERVER}" # Return Random Server
+}
+
+
+get-fastest-server() {
+  # Set paramaters for selecting a selecting the fastest server
+  NUM_SERVERS=2 # Number of servers to speed test before selecting the fastest
+  NUM_TESTS=2  # Number of speed tests to average for each server
+  MAX_SPEED=0  # Variable for tracking max speed
+  AVG_SPEED=0 # Variable for storing the average speed of each server
+
+  for (( i=0; i<"${NUM_SERVERS}"; i++)); do
+    # Get the name of the server associated with the random number
+    RANDOM_SERVER=$(get-random-server "${SERVER_ARRAY}")
+
+    AVG_SPEED=0 # Reset AVG_SPEED for the next server
+
+    # Compute average of
+    AVG_SPEED=$(get-speed "${RANDOM_SERVER}" "${NUM_TESTS}" | \
+                gawk '{ if ($1 == "SPEED:") { print $2 } }')
+
+    # If the avg speed of the current server is faster than the current max
+    if [ $AVG_SPEED -gt $MAX_SPEED ]; then
+      MAX_SPEED="${AVG_SPEED}" # Update max speed with the new maximum
+      BEST_SERVER="${RANDOM_SERVER}" # Update best server with the new fastest
+    fi
+  done
+
+  echo "${BEST_SERVER}" # Return fastest server
+}
+
+
+FASTEST=$(get-fastest-server) # Get the fastest server
+echo "${FASTEST}"
+#openvpn "${FASTEST}" >> /dev/null & # Launch VPN connection in the background
