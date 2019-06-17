@@ -4,16 +4,15 @@ set -o errexit
 #set -o nounset
 #set -o pipefail
 
-pkill openvpn # Kill any existing openvpn sessions
-
 # Usage: ./tcp_connect <Connection Protocol> <Country Abbreviation>
 #   <Connection Protocol>: tcp or udp
 #   <Country Abbreviation>: Abbreviation for the country you want to vpn in to
 PROTOCOL="${1}"
 COUNTRY="${2}"
 
+HOME="/home/you" # Your home directory
 # Set location for possible servers
-SERVER_BASE="/home/you/code/boost/nord_connect/nord_${PROTOCOL}/"
+SERVER_BASE="${HOME}/code/boost/nord_connect/nord_${PROTOCOL}/"
 
 # Read in servers with the abbreviation <country abbreviation>
 SERVER_ARRAY=($(ls "${SERVER_BASE}" | grep "${COUNTRY}"))
